@@ -1,7 +1,20 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-file(GLOB ENKIDU_CORE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
-file(GLOB ENKIDU_CORE_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
+set(ENKIDU_CORE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(ENKIDU_CORE_SOURCE
+    "${ENKIDU_CORE_SOURCE_DIR}/src/model/Store.cpp"
+)
+
+set(ENKIDU_CORE_INCLUDES
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Action.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Model.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/NodeMatrix.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Reducer.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Selector.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Store.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Subscription.hpp"
+)
 
 add_library(enkidu-core
 	"${ENKIDU_CORE_SOURCE}"

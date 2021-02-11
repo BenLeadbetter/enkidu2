@@ -1,6 +1,6 @@
 #pragma once
 
-namespace enkidu::core {
+namespace enkidu {
 
 // todo
 struct NodeMatrix{};

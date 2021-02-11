@@ -1,11 +1,13 @@
 #pragma once
 
-#include <NodeMatrix.hpp>
+#include <app/Version.hpp>
+
+#include <model/NodeMatrix.hpp>
 
 #include <immer/box.hpp>
 #include <immer/map.hpp>
 
-namespace enkidu::core::model {
+namespace enkidu::model {
 
 struct Node
 {
@@ -19,8 +21,13 @@ struct Document
     immer::box<NodeMatrix> node_matrix;
 };
 
-struct Application
+struct CoreApplication
 {
+    immer::box<version::Number> version {
+        version::major,
+        version::minor,
+        version::micro
+    };
     Document document_state;
 };
 
