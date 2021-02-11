@@ -13,26 +13,26 @@ template<typename Model>
 class Selector
 {
 public:
-    Subscription<Model> addSubscription(
+    typename Subscription<Model>::Id addSubscription(
         const Subscription<Model>& subscription)
     {
         if (subscription)
         {
             m_subscriptions.push_back(subscription);
-            return m_subscriptions.back();
+            return m_subscriptions.back().id;
         }
-        return Subscription<Model>{};
+        return 0;
     }
-    const Subscription<Model>& addSubscription(
+    typename Subscription<Model>::Id addSubscription(
         typename Subscription<Model>::Diff diff,
         typename Subscription<Model>::Callback callback)
     {
         auto subscription = Subscription<Model>{diff, callback};
-        return addSubscription(subscription);
+        return addSubscription(std::move(subscription));
     }
-    bool removeSubscription(const Subscription<Model>& subscription)
+    bool removeSubscription(typename Subscription<Model>::Id id)
     {
-        auto match = [&subscription](const auto& s) { return &subscription == &s; };
+        auto match = [id](const auto& s) { return id == s.id; };
         auto itr = boost::find_if(m_subscriptions, match);
         if (itr != m_subscriptions.cend())
         {

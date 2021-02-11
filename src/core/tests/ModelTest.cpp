@@ -5,7 +5,7 @@
 #include <model/Selector.hpp>
 #include <model/Store.hpp>
 
-TEST_CASE("model Test", "")
+TEST_CASE("model test", "[store][selector]")
 {
     GIVEN("a basic model")
     {
@@ -102,7 +102,7 @@ TEST_CASE("model Test", "")
                     [](auto...) { return true; },
                     [&actionHappenedCount](){ ++actionHappenedCount; }
                 };
-                selector.addSubscription(actionHappend);
+                selector.addSubscription(std::move(actionHappend));
 
                 WHEN("an action is dispatched")
                 {
@@ -124,7 +124,7 @@ TEST_CASE("model Test", "")
                     },
                     [&becameNegativeCount](){ ++becameNegativeCount; }
                 };
-                selector.addSubscription(becameNegative);
+                selector.addSubscription(std::move(becameNegative));
 
                 WHEN("a relevant action is dispatched")
                 {
@@ -143,6 +143,109 @@ TEST_CASE("model Test", "")
                     THEN("the subscriber is not called back")
                     {
                         REQUIRE(becameNegativeCount == 0);
+                    }
+                }
+            }
+        }
+    }
+}
+
+TEST_CASE("selector test", "[selector]")
+{
+    GIVEN("a selector")
+    {
+        struct Model{};
+        using Selector = enkidu::model::Selector<Model>;
+        Selector selector;
+        auto process = selector.process();
+
+        using Subscription = enkidu::model::Subscription<Model>;
+
+        WHEN("a subscription is added")
+        {
+            int count{0};
+            Subscription subscription {
+                [](auto...){ return true; },
+                [&count](){ ++count; }
+            };
+            auto id = selector.addSubscription(std::move(subscription));
+
+            WHEN("a new model is processed")
+            {
+                process(Model{}, Model{});
+
+                THEN("the subscriber gets called back")
+                {
+                    REQUIRE(count == 1);
+                }
+            }
+
+            WHEN("and then removed")
+            {
+                selector.removeSubscription(id);
+
+                WHEN("a new model is processed")
+                {
+                    process(Model{}, Model{});
+
+                    THEN("the subscriber is not notified")
+                    {
+                        REQUIRE(count == 0);
+                    }
+                }
+            }
+        }
+
+        WHEN("three subscriptions are added")
+        {
+            auto trivialDiff = [](auto...){ return true; };
+
+            int oneCount{0};
+            Subscription one{
+                trivialDiff,
+                [&oneCount](){ ++oneCount; }
+            };
+            selector.addSubscription(std::move(one));
+
+            int twoCount{0};
+            Subscription two{
+                trivialDiff,
+                [&twoCount](){ ++twoCount; }
+            };
+            auto twoId = selector.addSubscription(std::move(two));
+
+            int threeCount{0};
+            Subscription three{
+                trivialDiff,
+                [&threeCount](){ ++threeCount; }
+            };
+            selector.addSubscription(std::move(three));
+
+            WHEN("a new model is processed")
+            {
+                process(Model{}, Model{});
+
+                THEN("all three subscriptions are called back")
+                {
+                    REQUIRE(oneCount == 1);
+                    REQUIRE(twoCount == 1);
+                    REQUIRE(threeCount == 1);
+                }
+
+                WHEN("model two is removed")
+                {
+                    selector.removeSubscription(twoId);
+
+                    WHEN("a new model is processed")
+                    {
+                        process(Model{}, Model{});
+
+                        THEN("one and three are called again")
+                        {
+                            REQUIRE(oneCount == 2);
+                            REQUIRE(twoCount == 1);
+                            REQUIRE(threeCount == 2);
+                        }
                     }
                 }
             }
