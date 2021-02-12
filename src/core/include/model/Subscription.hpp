@@ -8,7 +8,7 @@ template<typename Model>
 struct Subscription
 {
     using Callback = std::function<void()>;
-    using Diff = std::function<bool(Model, Model)>;
+    using Diff = std::function<bool(const Model, const Model)>;
     using Id = std::size_t;
 
     template<typename DiffType, typename CallbackType>

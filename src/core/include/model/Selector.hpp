@@ -44,14 +44,14 @@ public:
 
     auto process() const
     {
-        return [this](auto oldModel, auto newModel)
+        return [this](const auto oldModel, const auto newModel)
         {
             notifySubscribers(oldModel, newModel);
         };
     }
 
 private:
-    void notifySubscribers(Model oldModel, Model newModel) const
+    void notifySubscribers(const Model oldModel, const Model newModel) const
     {
         for (const auto& subscription : m_subscriptions)
         {
