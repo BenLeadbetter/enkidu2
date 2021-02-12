@@ -7,13 +7,14 @@ set(ENKIDU_CORE_SOURCE
 )
 
 set(ENKIDU_CORE_INCLUDES
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Action.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/model/Model.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/model/NodeMatrix.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Reducer.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Selector.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Store.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Subscription.hpp"
+
+    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Action.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Reducer.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Selector.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Store.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Subscription.hpp"
 )
 
 add_library(enkidu-core

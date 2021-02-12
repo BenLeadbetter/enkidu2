@@ -1,9 +1,9 @@
 #include <CatchConfigMain.hpp>
 #include <catch2/catch.hpp>
 
-#include <model/Action.hpp>
-#include <model/Selector.hpp>
-#include <model/Store.hpp>
+#include <udf/Action.hpp>
+#include <udf/Selector.hpp>
+#include <udf/Store.hpp>
 
 TEST_CASE("model test", "[store][selector]")
 {

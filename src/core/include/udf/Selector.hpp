@@ -1,6 +1,6 @@
 #pragma once
 
-#include <model/Subscription.hpp>
+#include <udf/Subscription.hpp>
 
 #include <boost/range/algorithm/find_if.hpp>
 
