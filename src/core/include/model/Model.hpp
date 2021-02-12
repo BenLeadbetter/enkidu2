@@ -2,33 +2,30 @@
 
 #include <app/Version.hpp>
 
-#include <model/NodeMatrix.hpp>
+#include <model/Connections.hpp>
+#include <model/Node.hpp>
 
 #include <immer/box.hpp>
-#include <immer/map.hpp>
+
+#include <string>
 
 namespace enkidu::model {
 
-struct Node
-{
-    using Id = size_t;
-    Id id;
-};
-
 struct Document
 {
-    immer::map<Node::Id, Node> nodes;
-    immer::box<NodeMatrix> node_matrix;
+    Connections connections;
+    Nodes nodes;
 };
 
-struct CoreApplication
+struct CoreModel
 {
-    immer::box<version::Number> version {
+    immer::box<const std::string> name;
+    immer::box<const version::Number> version {
         version::major,
         version::minor,
         version::micro
     };
-    Document document_state;
+    Document document;
 };
 
 } // namespace enkdidu::core

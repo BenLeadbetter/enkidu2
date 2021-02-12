@@ -1,68 +1,50 @@
 #pragma once
 
 #include <udf/Reducer.hpp>
+#include <udf/Selector.hpp>
 
-#include <boost/range/algorithm/find_if.hpp>
+namespace enkidu::udf {
 
-#include <functional>
-
-namespace enkidu::model {
-
-template<typename Model, typename Action, typename Factory>
+template<
+    typename Model,
+    typename Action,
+    typename SideEffect,
+    typename Reducer
+>
 class Store
 {
 public:
-    void dispatch(Action action)
-    {
-        auto oldModel = m_model;
-        m_model = std::move(m_reducer(m_model, action));
-        for (const auto& callback : m_callbacks)
-        {
-            callback(oldModel, m_model);
-        }
-    }
-
-    struct Callback
-    {
-        operator bool() const
-        {
-            return static_cast<bool>(fn);
-        }
-        void operator()(Model oldModel, Model newModel) const
-        {
-            fn(oldModel, newModel);
-        }
-        std::function<void(Model, Model)> fn;
-    };
-
-    template<typename Function>
-    const Callback& addCallback(Function fn)
-    {
-        m_callbacks.emplace_back(Callback{fn});
-        return m_callbacks.back();
-    }
-
-    bool removeCallback(const Callback& callback)
-    {
-        auto match = [&callback](const auto& c) { return &callback == &c; };
-        auto itr = boost::find_if(m_callbacks, match);
-        if (itr != m_callbacks.cend())
-        {
-            m_callbacks.erase(itr);
-            return true;
-        }
-        return false;
-    }
-
     const Model model() const
     {
         return m_model;
     }
+    void dispatch(Action action)
+    {
+        auto oldModel = m_model;
+        auto reduction = m_reducer(m_model, action);
+        m_model = std::move(reduction.model);
+        for (const auto& se : reduction.sideEffects)
+        {
+            m_selector.select(se);
+        }
+        m_selector.select(oldModel, m_model);
+    }
+
+    using SubscriptionId = typename Selector<Model, SideEffect>::SubscriptionId;
+    template<typename Subscription>
+    SubscriptionId addSubscription(Subscription s)
+    {
+        return m_selector.addSubscription(std::move(s));
+    }
+    void removeSubscription(SubscriptionId id)
+    {
+        m_selector.removeSubscription(id);
+    }
 
 private:
     Model m_model;
-    std::vector<Callback> m_callbacks;
-    Reducer<Model, Action, Factory> m_reducer;
+    ReducerBase<Model, SideEffect, Reducer> m_reducer;
+    Selector<Model, SideEffect> m_selector;
 };
 
 }

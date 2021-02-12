@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 3.16.0)
 find_package(Catch2 REQUIRED)
 
 add_executable(enkidu-core-tests
+    "${CMAKE_CURRENT_SOURCE_DIR}/ConnectionsTest.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/ModelTest.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/UDFTest.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/UtilitiesTest.cpp"
 )
 
 target_link_libraries(enkidu-core-tests

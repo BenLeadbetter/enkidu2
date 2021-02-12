@@ -1,23 +1,30 @@
 #pragma once
 
+#include <udf/Reduction.hpp>
+
 #include <functional>
 #include <variant>
+#include <vector>
 
-namespace enkidu::model {
+namespace enkidu::udf {
 
-template<typename Model, typename Action, typename Factory>
-class Reducer
+template<typename Model, typename SideEffect, typename Reducer>
+struct ReducerBase
 {
-public:
-    using Reduce = std::function<Model(Model)>;
-    Model operator()(Model model, Action action)
-    {
-        Reduce reduce = std::visit(factory, action);
-        return reduce(model);
-    }
+    using ReduceFunction = std::function<Reduction<Model, SideEffect>(Model)>;
 
-private:
-    Factory factory;
+    template<typename Action>
+    Reduction<Model, SideEffect> operator()(Model model, const Action& action)
+    {
+        ReduceFunction reducefn = std::visit(*this, action);
+        return reducefn(model);
+    }
+    template<typename Action>
+    ReduceFunction operator()(const Action& action)
+    {
+        return [&action, this](auto model) { return reducer.reduce(model, action); };
+    }
+    Reducer reducer;
 };
 
 }

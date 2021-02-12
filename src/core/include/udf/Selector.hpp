@@ -1,67 +1,155 @@
 #pragma once
 
-#include <udf/Subscription.hpp>
+#include <udf/SideEffect.hpp>
 
-#include <boost/range/algorithm/find_if.hpp>
+#include <utility/is_one_of.hpp>
+#include <utility/registry.hpp>
 
 #include <functional>
-#include <vector>
+#include <unordered_map>
 
-namespace enkidu::model {
+namespace enkidu::udf {
 
 template<typename Model>
-class Selector
+using Diff = std::function<bool(const Model, const Model)>;
+using Callback = std::function<void()>;
+template<typename Model>
+struct DiffSubscription
+{
+    Diff<Model> diff;
+    Callback callback;
+};
+
+template<typename SE>
+using SideEffectSubscription = std::function<void(const SE&)>;
+
+namespace detail {
+
+template<typename Subscription>
+class SelectorBase
 {
 public:
-    typename Subscription<Model>::Id addSubscription(
-        const Subscription<Model>& subscription)
+    struct SubscriptionId { std::size_t id; };
+    SubscriptionId addSubscription(Subscription s)
     {
-        if (subscription)
-        {
-            m_subscriptions.push_back(subscription);
-            return m_subscriptions.back().id;
-        }
-        return 0;
+        return { m_subscriptions.add(std::move(s)) };
     }
-    typename Subscription<Model>::Id addSubscription(
-        typename Subscription<Model>::Diff diff,
-        typename Subscription<Model>::Callback callback)
+    void removeSubscription(SubscriptionId id)
     {
-        auto subscription = Subscription<Model>{diff, callback};
-        return addSubscription(std::move(subscription));
+        m_subscriptions.remove(id.id);
     }
-    bool removeSubscription(typename Subscription<Model>::Id id)
+    void forEach (std::function<void(const Subscription&)> f)
     {
-        auto match = [id](const auto& s) { return id == s.id; };
-        auto itr = boost::find_if(m_subscriptions, match);
-        if (itr != m_subscriptions.cend())
-        {
-            m_subscriptions.erase(itr);
-            return true;
-        }
-        return false;
-    }
-
-    auto process() const
-    {
-        return [this](const auto oldModel, const auto newModel)
-        {
-            notifySubscribers(oldModel, newModel);
-        };
+        m_subscriptions.for_each(f);
     }
 
 private:
-    void notifySubscribers(const Model oldModel, const Model newModel) const
-    {
-        for (const auto& subscription : m_subscriptions)
-        {
-            if (subscription.diff(oldModel, newModel))
-            {
-                subscription.callback();
-            }
-        }
-    }
-    std::vector<Subscription<Model>> m_subscriptions;
+    utility::registry<Subscription> m_subscriptions;
 };
+
+template<typename SE>
+struct SideEffectSelector : public SelectorBase<SideEffectSubscription<SE>>
+{
+    using SelectorBase<SideEffectSubscription<SE>>::addSubscription;
+    using SelectorBase<SideEffectSubscription<SE>>::removeSubscription;
+    using SelectorBase<SideEffectSubscription<SE>>::forEach;
+    void select(const SE& se)
+    {
+        const auto exe = [&se](const auto& s)
+        {
+            s(se);
+        };
+        forEach(exe);
+    }
+};
+
+template<typename Model>
+struct DiffSelector : SelectorBase<DiffSubscription<Model>>
+{
+    using SelectorBase<DiffSubscription<Model>>::addSubscription;
+    using SelectorBase<DiffSubscription<Model>>::removeSubscription;
+    using SelectorBase<DiffSubscription<Model>>::forEach;
+    void select(Model oldModel, Model newModel)
+    {
+        const auto exe = [&oldModel, &newModel](const auto& s)
+        {
+            if (s.diff(oldModel, newModel))
+            {
+                s.callback();
+            }
+        };
+        forEach(exe);
+    }
+};
+
+template<typename Model, typename SideEffect> struct SelectOverload;
+template<typename Model, typename SideEffect> struct RemoveSubscriptionOverload;
+
+} // namespace detail
+
+template<typename Model, typename SideEffect> struct Selector;
+template<typename Model, typename... SideEffects>
+struct Selector<Model, SideEffect<SideEffects...>> :
+        public detail::DiffSelector<Model>,
+        public detail::SideEffectSelector<SideEffects>...
+{
+    using SubscriptionId = std::variant<
+        typename detail::SideEffectSelector<SideEffects>::SubscriptionId...,
+        typename detail::DiffSelector<Model>::SubscriptionId
+    >;
+
+    using detail::SideEffectSelector<SideEffects>::addSubscription...;
+    template<typename SE>
+    SubscriptionId addSubscription(SideEffectSubscription<SE> s)
+    {
+        return detail::SideEffectSelector<SE>::addSubscription(std::move(s));
+    }
+    using detail::DiffSelector<Model>::addSubscription;
+    SubscriptionId addSubscription(DiffSubscription<Model> s)
+    {
+        return detail::DiffSelector<Model>::addSubscription(std::move(s));
+    }
+
+    void removeSubscription(SubscriptionId id)
+    {
+        std::visit(detail::RemoveSubscriptionOverload<Model, SideEffect<SideEffects...>>{*this}, id);
+    }
+    void select(const SideEffect<SideEffects...>& se)
+    {
+        std::visit(detail::SelectOverload<Model, SideEffect<SideEffects...>>{*this}, se);
+    }
+
+    using detail::DiffSelector<Model>::select;
+    using detail::SideEffectSelector<SideEffects>::select...;
+    using detail::SideEffectSelector<SideEffects>::removeSubscription...;
+    using detail::DiffSelector<Model>::removeSubscription;
+};
+
+namespace detail {
+
+template<typename Model, typename... SideEffects>
+struct SelectOverload<Model, SideEffect<SideEffects...>>
+{
+    SelectOverload(Selector<Model, SideEffect<SideEffects...>>& s) : selector(s) {};
+    template<typename SE>
+    void operator()(const SE& se)
+    {
+        selector.select(se);
+    }
+    Selector<Model, SideEffect<SideEffects...>>& selector;
+};
+template<typename Model, typename... SideEffects>
+struct RemoveSubscriptionOverload<Model, SideEffect<SideEffects...>>
+{
+    RemoveSubscriptionOverload(Selector<Model, SideEffect<SideEffects...>>& s) : selector(s) {};
+    template<typename ID>
+    void operator()(const ID& id)
+    {
+        selector.removeSubscription(id);
+    }
+    Selector<Model, SideEffect<SideEffects...>>& selector;
+};
+
+}
 
 }
