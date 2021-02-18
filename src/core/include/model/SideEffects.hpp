@@ -3,6 +3,8 @@
 #include <model/Connections.hpp>
 #include <model/Node.hpp>
 
+#include <string>
+
 namespace enkidu::model {
 
 struct NodeAddedSideEffect
@@ -28,6 +30,11 @@ struct ConnectionSideEffect
 struct DisconnectionSideEffect
 {
     Connection::Id id;
+};
+
+struct ErrorSideEffect
+{
+    std::string message;
 };
 
 }
