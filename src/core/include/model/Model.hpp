@@ -2,7 +2,7 @@
 
 #include <app/Version.hpp>
 
-#include <model/Connections.hpp>
+#include <model/Connection.hpp>
 #include <model/Node.hpp>
 
 #include <immer/box.hpp>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <model/Connections.hpp>
+#include <model/Connection.hpp>
 #include <model/Node.hpp>
 
 #include <string>
