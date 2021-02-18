@@ -1,6 +1,7 @@
 #pragma once
 
 #include <model/Connection.hpp>
+#include <model/Error.hpp>
 #include <model/Node.hpp>
 
 #include <string>
@@ -34,7 +35,7 @@ struct DisconnectionSideEffect
 
 struct ErrorSideEffect
 {
-    std::string message;
+    Error message;
 };
 
 }
