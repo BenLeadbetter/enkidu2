@@ -1,10 +1,16 @@
 #pragma once
 
-#include <variant>
+#include <model/Actions.hpp>
+
+#include <udf/Action.hpp>
 
 namespace enkidu::model {
 
-template<typename... Actions>
-using Action = std::variant<Actions...>;
+using Action = udf::Action<
+    AddNodeAction,
+    RemoveNodeAction,
+    ConnectAction,
+    DisconnectAction
+>;
 
 }

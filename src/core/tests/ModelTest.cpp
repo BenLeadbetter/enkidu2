@@ -1,150 +1,163 @@
-#include <CatchConfigMain.hpp>
 #include <catch2/catch.hpp>
 
 #include <model/Action.hpp>
-#include <model/Selector.hpp>
-#include <model/Store.hpp>
+#include <model/Model.hpp>
+#include <model/Node.hpp>
+#include <model/Reducers.hpp>
+#include <model/SideEffect.hpp>
 
-TEST_CASE("model Test", "")
+#include <udf/Store.hpp>
+#include <udf/Reduction.hpp>
+
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/algorithm/find.hpp>
+
+using namespace enkidu;
+
+struct Reducer
 {
-    GIVEN("a basic model")
+    template<typename Action>
+    udf::Reduction<model::CoreModel, model::SideEffect> reduce(model::CoreModel model, Action action)
     {
-        struct Model
-        {
-            int value{0};
-        };
+        return model::reduce(model, action);
+    }
+};
+using Store = udf::Store<model::CoreModel, model::Action, model::SideEffect, Reducer>;
 
-        struct IncrementAction{};
-        struct DecrementAction{};
-        struct AddAction
-        {
-            int summand;
-        };
-
-        using Action = enkidu::model::Action<
-            IncrementAction,
-            DecrementAction,
-            AddAction
-        >;
-
-        struct Factory
-        {
-            using Reduce = std::function<Model(Model)>;
-            Reduce operator()(IncrementAction)
-            {
-                return [](auto model)
-                {
-                    return Model{++model.value};
-                };
-            }
-            Reduce operator()(DecrementAction)
-            {
-                return [](auto model)
-                {
-                    return Model{--model.value};
-                };
-            }
-            Reduce operator()(AddAction action)
-            {
-                return [action](auto model)
-                {
-                    return Model{model.value + action.summand};
-                };
-            }
-        };
-
-        using Store = enkidu::model::Store<Model, Action, Factory>;
+TEST_CASE("general core model test", "[actions][model][connection][reducers]")
+{
+    GIVEN("an empty core model with subscribers")
+    {
         Store store;
+        std::vector<model::Node::Id> nodeids{};
+        std::vector<model::Connection::Id> connectionids{};
 
-        WHEN("dispatch basic action")
+        const auto recordNodeId = [&nodeids](const model::NodeAddedSideEffect& se)
         {
-            store.dispatch(IncrementAction{});
+            nodeids.push_back(se.id);
+        };
+        const auto removeNodeId = [&nodeids](const model::NodeRemovedSideEffect& se)
+        {
+            auto itr = boost::find(nodeids, se.id);
+            if (itr != nodeids.cend()) nodeids.erase(itr);
+        };
+        const auto recordConnectionId = [&connectionids](const model::ConnectionSideEffect& se)
+        {
+            connectionids.push_back(se.id);
+        };
+        const auto removeConnectionId = [&connectionids](const model::DisconnectionSideEffect& se)
+        {
+            auto itr = boost::find(connectionids, se.id);
+            if (itr != connectionids.cend()) connectionids.erase(itr);
+        };
 
-            THEN("model recieves change")
+        store.addSubscription(recordNodeId);
+        store.addSubscription(removeNodeId);
+        store.addSubscription(recordConnectionId);
+        store.addSubscription(removeConnectionId);
+
+        REQUIRE(store.model().document.nodes.empty());
+
+        WHEN("dispatch an add node action")
+        {
+            store.dispatch(model::AddNodeAction{});
+
+            THEN("a node is added to the model")
             {
-                REQUIRE(store.model().value == 1);
+                REQUIRE(store.model().document.nodes.size() == 1);
+            }
+
+            THEN("the side effect subscriber is notified")
+            {
+                REQUIRE(!nodeids.empty());
             }
         }
 
-        WHEN("dispatch two basic actions")
+        WHEN("dispatch add, remove")
         {
-            store.dispatch(IncrementAction{});
-            store.dispatch(IncrementAction{});
+            store.dispatch(model::AddNodeAction{});
+            REQUIRE(nodeids.size() != 0);
+            store.dispatch(model::RemoveNodeAction{nodeids.front()});
 
-            THEN("model recieves both changes")
+            THEN("the model is empty")
             {
-                REQUIRE(store.model().value == 2);
+                REQUIRE(store.model().document.nodes.empty());
             }
         }
 
-        WHEN("dispatch action with data")
+        WHEN("dispatch add, add")
         {
-            store.dispatch(AddAction{5});
+            store.dispatch(model::AddNodeAction{});
+            store.dispatch(model::AddNodeAction{});
 
-            THEN("model correctly reduces action with data")
+            THEN("the store contains two nodes")
             {
-                REQUIRE(store.model().value == 5);
+                REQUIRE(store.model().document.nodes.size() == 2);
             }
         }
 
-        GIVEN("a selecter")
+        WHEN("dispatch add, add, remove(0)")
         {
-            using Selector = enkidu::model::Selector<Model>;
-            Selector selector;
-            store.addCallback(selector.process());
+            store.dispatch(model::AddNodeAction{});
+            store.dispatch(model::AddNodeAction{});
+            REQUIRE(nodeids.size() == 2);
 
-            using Subscription = enkidu::model::Subscription<Model>;
+            auto first = nodeids[0];
+            auto second = nodeids[1];
+            store.dispatch(model::RemoveNodeAction{first});
 
-            GIVEN("a trivial subscription")
+            THEN("the second node remains")
             {
-                int actionHappenedCount{0};
-                Subscription actionHappend {
-                    [](auto...) { return true; },
-                    [&actionHappenedCount](){ ++actionHappenedCount; }
-                };
-                selector.addSubscription(actionHappend);
+                REQUIRE(store.model().document.nodes.size() == 1);
+                REQUIRE(store.model().document.nodes.begin()->first == second);
+            }
+        }
 
-                WHEN("an action is dispatched")
-                {
-                    store.dispatch(IncrementAction{});
+        WHEN("dispatch add, add, remove(1)")
+        {
+            store.dispatch(model::AddNodeAction{});
+            store.dispatch(model::AddNodeAction{});
+            REQUIRE(nodeids.size() == 2);
 
-                    THEN("the subscriber is called back")
-                    {
-                        REQUIRE(actionHappenedCount == 1);
-                    }
-                }
+            auto first = nodeids[0];
+            auto second = nodeids[1];
+            store.dispatch(model::RemoveNodeAction{second});
+
+            THEN("the second node remains")
+            {
+                REQUIRE(store.model().document.nodes.size() == 1);
+                REQUIRE(store.model().document.nodes.begin()->first == first);
+            }
+        }
+
+        WHEN("dispatch add, add, connect")
+        {
+            store.dispatch(model::AddNodeAction{});
+            store.dispatch(model::AddNodeAction{});
+            REQUIRE(nodeids.size() == 2);
+
+            auto firstNodeId = nodeids[0];
+            auto secondNodeId = nodeids[1];
+            auto inputid = store.model().document.nodes.find(firstNodeId)->inputs[0].id;
+            auto outputid = store.model().document.nodes.find(secondNodeId)->outputs[0].id;
+            store.dispatch(model::ConnectAction{{inputid, firstNodeId}, {outputid, secondNodeId}});
+
+            THEN("a connection is created")
+            {
+                REQUIRE(store.model().document.connections.size() == 1);
             }
 
-            GIVEN("a discerning subscription")
+            auto connection = store.model().document.connections.begin()->second;
+            THEN("the connection has the requested ports")
             {
-                int becameNegativeCount{0};
-                Subscription becameNegative {
-                    [](auto oldModel, auto newModel) {
-                        return oldModel.value >= 0 && newModel.value < 0;
-                    },
-                    [&becameNegativeCount](){ ++becameNegativeCount; }
-                };
-                selector.addSubscription(becameNegative);
+                REQUIRE(connection.input.portid == inputid);
+                REQUIRE(connection.output.portid == outputid);
+            }
 
-                WHEN("a relevant action is dispatched")
-                {
-                    store.dispatch(DecrementAction{});
-
-                    THEN("the subscriber is called back")
-                    {
-                        REQUIRE(becameNegativeCount == 1);
-                    }
-                }
-
-                WHEN("an irrelevant action is dispatched")
-                {
-                    store.dispatch(IncrementAction{});
-
-                    THEN("the subscriber is not called back")
-                    {
-                        REQUIRE(becameNegativeCount == 0);
-                    }
-                }
+            THEN("the connection has the requested nodes")
+            {
+                REQUIRE(connection.input.nodeid == nodeids[0]);
+                REQUIRE(connection.output.nodeid == nodeids[1]);
             }
         }
     }
