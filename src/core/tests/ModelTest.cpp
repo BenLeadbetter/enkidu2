@@ -50,17 +50,28 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
             auto itr = boost::find(connectionids, se.id);
             if (itr != connectionids.cend()) connectionids.erase(itr);
         };
+        int errorCount{0};
+        const auto countErrors = [&errorCount](const model::ErrorSideEffect&)
+        {
+            ++errorCount;
+        };
 
         store.addSubscription(recordNodeId);
         store.addSubscription(removeNodeId);
         store.addSubscription(recordConnectionId);
         store.addSubscription(removeConnectionId);
+        store.addSubscription(countErrors);
 
         REQUIRE(store.model().document.nodes.empty());
 
         WHEN("dispatch an add node action")
         {
             store.dispatch(model::AddNodeAction{});
+
+            THEN("there are no errors")
+            {
+                REQUIRE(!errorCount);
+            }
 
             THEN("a node is added to the model")
             {
@@ -79,6 +90,11 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
             REQUIRE(nodeids.size() != 0);
             store.dispatch(model::RemoveNodeAction{nodeids.front()});
 
+            THEN("there are no errors")
+            {
+                REQUIRE(!errorCount);
+            }
+
             THEN("the model is empty")
             {
                 REQUIRE(store.model().document.nodes.empty());
@@ -89,6 +105,11 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
         {
             store.dispatch(model::AddNodeAction{});
             store.dispatch(model::AddNodeAction{});
+
+            THEN("there are no errors")
+            {
+                REQUIRE(!errorCount);
+            }
 
             THEN("the store contains two nodes")
             {
@@ -106,6 +127,11 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
             auto second = nodeids[1];
             store.dispatch(model::RemoveNodeAction{first});
 
+            THEN("there are no errors")
+            {
+                REQUIRE(!errorCount);
+            }
+
             THEN("the second node remains")
             {
                 REQUIRE(store.model().document.nodes.size() == 1);
@@ -122,6 +148,11 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
             auto first = nodeids[0];
             auto second = nodeids[1];
             store.dispatch(model::RemoveNodeAction{second});
+
+            THEN("there are no errors")
+            {
+                REQUIRE(!errorCount);
+            }
 
             THEN("the second node remains")
             {
@@ -141,6 +172,11 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
             auto inputid = store.model().document.nodes.find(firstNodeId)->inputs[0].id;
             auto outputid = store.model().document.nodes.find(secondNodeId)->outputs[0].id;
             store.dispatch(model::ConnectAction{{inputid, firstNodeId}, {outputid, secondNodeId}});
+
+            THEN("there are no errors")
+            {
+                REQUIRE(!errorCount);
+            }
 
             THEN("a connection is created")
             {

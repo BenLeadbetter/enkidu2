@@ -3,8 +3,9 @@
 namespace enkidu::model {
 
 enum class Error {
-    ConnectinNotFound,
-    NodeNotFound
+    NodeNotFound,
+    PortNotFound,
+    ConnectionNotFound
 };
 
 }
