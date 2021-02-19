@@ -196,5 +196,21 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
                 REQUIRE(connection.output.nodeid == nodeids[1]);
             }
         }
+
+        WHEN("dispatch an add node action and remove non-existent node")
+        {
+            store.dispatch(model::AddNodeAction{});
+            store.dispatch(model::RemoveNodeAction{0});
+
+            THEN("there is an error")
+            {
+                REQUIRE(errorCount);
+            }
+
+            THEN("the added node remains in the model")
+            {
+                REQUIRE(!store.model().document.nodes.empty());
+            }
+        }
     }
 }
