@@ -31,6 +31,7 @@ set(ENKIDU_CORE_INCLUDES
     "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/SideEffect.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/Store.hpp"
 
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/Assert.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/is_one_of.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/flatten_variants.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/overload.hpp"

@@ -1,9 +1,10 @@
 #include <enkidu/model/Reducers.hpp>
 #include <enkidu/model/ReducerHelpers.hpp>
 
+#include <enkidu/utility/Assert.hpp>
+
 #include <boost/range/algorithm/find.hpp>
 
-#include <cassert>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -99,7 +100,7 @@ Reduction reduce(CoreModel model, ConnectAction action)
         auto inputnodes = getIdsIf(
             ret.model.document.nodes,
             std::bind(found, _1, action.input.nodeid));
-        assert(inputnodes.size() < 2);
+        ENKIDU_ASSERT(inputnodes.size() < 2);
         if (inputnodes.empty())
         {
             ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
@@ -109,7 +110,7 @@ Reduction reduce(CoreModel model, ConnectAction action)
         auto outputnodes = getIdsIf(
             ret.model.document.nodes,
             std::bind(found, _1, action.output.nodeid));
-        assert(outputnodes.size() < 2);
+        ENKIDU_ASSERT(outputnodes.size() < 2);
         if (inputnodes.empty())
         {
             ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
