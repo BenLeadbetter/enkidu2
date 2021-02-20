@@ -117,6 +117,7 @@ Reduction reduce(CoreModel model, ConnectAction action)
     if (!inputnodeid || !outputnodeid)
     {
         ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
+        return ret;
     }
 
     {
