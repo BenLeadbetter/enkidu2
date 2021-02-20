@@ -1,4 +1,4 @@
-#include <model/ReducerHelpers.hpp>
+#include <enkidu/model/ReducerHelpers.hpp>
 
 namespace enkidu::model::reducer_helpers {
 

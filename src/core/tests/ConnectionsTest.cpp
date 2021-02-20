@@ -1,14 +1,14 @@
 #include <catch2/catch.hpp>
 
-#include <model/Action.hpp>
-#include <model/Model.hpp>
-#include <model/Node.hpp>
-#include <model/Reducers.hpp>
-#include <model/SideEffect.hpp>
+#include <enkidu/model/Action.hpp>
+#include <enkidu/model/Model.hpp>
+#include <enkidu/model/Node.hpp>
+#include <enkidu/model/Reducers.hpp>
+#include <enkidu/model/SideEffect.hpp>
 
-#include <udf/Action.hpp>
-#include <udf/Reducer.hpp>
-#include <udf/Store.hpp>
+#include <enkidu/udf/Action.hpp>
+#include <enkidu/udf/Reducer.hpp>
+#include <enkidu/udf/Store.hpp>
 
 #include <boost/range/algorithm/find.hpp>
 

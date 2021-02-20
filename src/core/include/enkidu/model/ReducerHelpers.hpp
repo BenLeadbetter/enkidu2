@@ -3,7 +3,7 @@
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 
-#include <model/Model.hpp>
+#include <enkidu/model/Model.hpp>
 
 namespace enkidu::model::reducer_helpers {
 

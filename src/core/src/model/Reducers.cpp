@@ -1,5 +1,5 @@
-#include <model/Reducers.hpp>
-#include <model/ReducerHelpers.hpp>
+#include <enkidu/model/Reducers.hpp>
+#include <enkidu/model/ReducerHelpers.hpp>
 
 #include <boost/range/algorithm/find.hpp>
 

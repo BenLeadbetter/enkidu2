@@ -1,8 +1,7 @@
 #pragma once
 
-#include <model/Connection.hpp>
-#include <model/Error.hpp>
-#include <model/Node.hpp>
+#include <enkidu/model/Connections.hpp>
+#include <enkidu/model/Node.hpp>
 
 namespace enkidu::model {
 
