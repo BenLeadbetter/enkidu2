@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enkidu/model/Connections.hpp>
+#include <enkidu/model/Connection.hpp>
 #include <enkidu/model/Node.hpp>
 
 namespace enkidu::model {
@@ -14,8 +14,8 @@ struct RemoveNodeAction
 
 struct ConnectAction
 {
-    Connection::Endpoint input;
-    Connection::Endpoint output;
+    Port::Id input;
+    Port::Id output;
 };
 
 struct DisconnectAction

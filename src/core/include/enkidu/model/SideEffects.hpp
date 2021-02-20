@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enkidu/model/Connections.hpp>
+#include <enkidu/model/Connection.hpp>
 #include <enkidu/model/Error.hpp>
 #include <enkidu/model/Node.hpp>
 
