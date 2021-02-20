@@ -1,7 +1,7 @@
-#include <linenoise.h>
+#include <headless/app/Application.hpp>
 
-int main(int, char**)
+int main(int argc, char** argv)
 {
-
-    return 0;
+    enkidu::headless::Application app(argc, argv);
+    return app.run();
 }
