@@ -171,7 +171,7 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
             auto secondNodeId = nodeids[1];
             auto inputid = store.model().document.nodes.find(firstNodeId)->inputs[0].id;
             auto outputid = store.model().document.nodes.find(secondNodeId)->outputs[0].id;
-            store.dispatch(model::ConnectAction{{inputid, firstNodeId}, {outputid, secondNodeId}});
+            store.dispatch(model::ConnectAction{inputid, outputid});
 
             THEN("there are no errors")
             {
