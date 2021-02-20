@@ -11,7 +11,8 @@ using SideEffect = udf::SideEffect<
     NodeRemovedSideEffect,
     NodeChangedSideEffect,
     ConnectionSideEffect,
-    DisconnectionSideEffect
+    DisconnectionSideEffect,
+    ErrorSideEffect
 >;
 
 }

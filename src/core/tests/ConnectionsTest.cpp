@@ -33,6 +33,7 @@ TEST_CASE("connection management", "[connection][reducers]")
 
         std::vector<model::Node::Id> nodeids;
         std::vector<model::Connection::Id> connectionids;
+        int errorCount{0};
         {
             const auto nodeAddedSubscription = [&nodeids](const model::NodeAddedSideEffect& se)
             {
@@ -48,9 +49,14 @@ TEST_CASE("connection management", "[connection][reducers]")
                 auto itr = boost::find(connectionids, se.id);
                 if (itr != connectionids.cend()) connectionids.erase(itr);
             };
+            const auto countErrors = [&errorCount](const model::ErrorSideEffect&)
+            {
+                ++errorCount;
+            };
             store.addSubscription(std::move(nodeAddedSubscription));
             store.addSubscription(std::move(connectionSubscription));
             store.addSubscription(std::move(disconnectionSubscription));
+            store.addSubscription(std::move(countErrors));
         }
 
         for (int i = 0; i != 5; ++i)
@@ -65,6 +71,11 @@ TEST_CASE("connection management", "[connection][reducers]")
                 {store.model().document.nodes.find(nodeids[0])->inputs[0].id, nodeids[0]},
                 {store.model().document.nodes.find(nodeids[1])->outputs[0].id, nodeids[1]}});
 
+            THEN("there are no errors")
+            {
+                REQUIRE(!errorCount);
+            }
+
             THEN("the connection should be registered")
             {
                 REQUIRE(store.model().document.connections.size() == 1);
@@ -76,6 +87,11 @@ TEST_CASE("connection management", "[connection][reducers]")
                 store.dispatch(model::ConnectAction{
                     {store.model().document.nodes.find(nodeids[3])->inputs[0].id, nodeids[3]},
                     {store.model().document.nodes.find(nodeids[1])->outputs[0].id, nodeids[1]}});
+
+                THEN("there are no errors")
+                {
+                    REQUIRE(!errorCount);
+                }
 
                 THEN("the original connection is destroyed")
                 {

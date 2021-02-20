@@ -1,6 +1,7 @@
 #pragma once
 
-#include <model/Connections.hpp>
+#include <model/Connection.hpp>
+#include <model/Error.hpp>
 #include <model/Node.hpp>
 
 namespace enkidu::model {
@@ -28,6 +29,11 @@ struct ConnectionSideEffect
 struct DisconnectionSideEffect
 {
     Connection::Id id;
+};
+
+struct ErrorSideEffect
+{
+    Error error;
 };
 
 }

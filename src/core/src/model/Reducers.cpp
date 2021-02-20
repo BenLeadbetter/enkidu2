@@ -2,8 +2,6 @@
 #include <model/ReducerHelpers.hpp>
 
 #include <boost/range/algorithm/find.hpp>
-#include <boost/range/adaptor/filtered.hpp>
-#include <boost/range/adaptor/transformed.hpp>
 
 #include <cassert>
 #include <functional>
@@ -24,33 +22,62 @@ Reduction reduce(CoreModel model, AddNodeAction)
     };
 }
 
+namespace  {
+
+std::vector<Connection::Id> getConnectionsWithNode(
+    Connections connections, Node::Id id)
+{
+    const auto match = [id](const auto& connection)
+    {
+        return
+            connection.second.input.nodeid == id ||
+            connection.second.output.nodeid == id;
+    };
+    return reducer_helpers::getIdsIf(connections, match);
+}
+
+std::vector<Connection::Id> getConnectionsWithPort(
+    Connections connections, Port::Id id)
+{
+    const auto match = [id](const auto& connection)
+    {
+        return
+            connection.second.input.portid == id ||
+            connection.second.output.portid == id;
+    };
+    return reducer_helpers::getIdsIf(connections, match);
+}
+
+template<typename A>
+Reduction reduce(Reduction reduction, const A& action)
+{
+    auto ret = reduce(reduction.model, action);
+    ret.sideEffects.insert(
+        ret.sideEffects.end(),
+        reduction.sideEffects.cbegin(),
+        reduction.sideEffects.cend());
+    return ret;
+}
+
+} // namespace
+
 Reduction reduce(CoreModel model, RemoveNodeAction action)
 {
     auto ret = Reduction{model, {}};
-    const auto tocid = [](const auto& connection)
+
+    auto* node = ret.model.document.nodes.find(action.id);
+    if (!node)
     {
-        return connection.first;
-    };
-    const auto match = [&action](const auto& connection)
-    {
-        return
-            connection.second.input.nodeid == action.id ||
-            connection.second.output.nodeid == action.id;
-    };
-    auto prevConnections = boost::copy_range<std::vector<Connection::Id>>(
-        model.document.connections |
-        boost::adaptors::filtered(match) |
-        boost::adaptors::transformed(tocid)
-    );
+        ret.sideEffects.push_back(ErrorSideEffect{Error::NodeNotFound});
+        return ret;
+    }
+
+    auto prevConnections = getConnectionsWithNode(model.document.connections, action.id);
     for (auto id : prevConnections)
     {
-        auto reduction = reduce(ret.model, DisconnectAction{id});
-        ret.model = reduction.model;
-        ret.sideEffects.insert(
-            ret.sideEffects.end(),
-            reduction.sideEffects.cbegin(),
-            reduction.sideEffects.cend());
+        ret = reduce(ret, DisconnectAction{id});
     }
+
     ret.sideEffects.push_back(NodeRemovedSideEffect{action.id});
     return {
         reducer_helpers::update(ret.model, ret.model.document.nodes.erase(action.id)),
@@ -61,31 +88,50 @@ Reduction reduce(CoreModel model, RemoveNodeAction action)
 Reduction reduce(CoreModel model, ConnectAction action)
 {
     auto ret = Reduction{model, {}};
-    auto connections = model.document.connections;
-    const auto tocid = [](const auto& connection)
+
     {
-        return connection.first;
-    };
-    const auto match = [&action](const auto& connection)
-    {
-        return
-            connection.second.input.portid == action.input.portid ||
-            connection.second.output.portid == action.output.portid;
-    };
-    auto prevConnections = boost::copy_range<std::vector<Connection::Id>>(
-        connections |
-        boost::adaptors::filtered(match) |
-        boost::adaptors::transformed(tocid)
-    );
-    for (auto id : prevConnections)
-    {
-        auto reduction = reduce(ret.model, DisconnectAction{id});
-        ret.model = reduction.model;
-        ret.sideEffects.insert(
-            ret.sideEffects.end(),
-            reduction.sideEffects.cbegin(),
-            reduction.sideEffects.cend());
+        using namespace reducer_helpers;
+        using namespace std::placeholders;
+        const auto found = [](const auto pair, auto id)
+        {
+            return pair.first == id;
+        };
+        auto inputnodes = getIdsIf(
+            ret.model.document.nodes,
+            std::bind(found, _1, action.input.nodeid));
+        assert(inputnodes.size() < 2);
+        if (inputnodes.empty())
+        {
+            ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
+            return ret;
+        }
+
+        auto outputnodes = getIdsIf(
+            ret.model.document.nodes,
+            std::bind(found, _1, action.output.nodeid));
+        assert(outputnodes.size() < 2);
+        if (inputnodes.empty())
+        {
+            ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
+            return ret;
+        }
     }
+
+    {
+        auto prevInputConnections = getConnectionsWithPort(
+            ret.model.document.connections, action.input.portid);
+        auto prevOutputConnections = getConnectionsWithPort(
+            ret.model.document.connections, action.output.portid);
+        for (auto id : prevInputConnections)
+        {
+            ret = reduce(ret, DisconnectAction{id});
+        }
+        for (auto id : prevOutputConnections)
+        {
+            ret = reduce(ret, DisconnectAction{id});
+        }
+    }
+
     auto newConnection = Connection{{}, action.input, action.output};
     ret.sideEffects.push_back(ConnectionSideEffect{newConnection.id});
     using namespace reducer_helpers;
@@ -97,6 +143,11 @@ Reduction reduce(CoreModel model, ConnectAction action)
 
 Reduction reduce(CoreModel model, DisconnectAction action)
 {
+    auto* connection = model.document.connections.find(action.connectionid);
+    if (!connection)
+    {
+        return {model, {ErrorSideEffect{Error::ConnectionNotFound}}};
+    }
     using namespace reducer_helpers;
     return {
         update(model, model.document.connections.erase(action.connectionid)),

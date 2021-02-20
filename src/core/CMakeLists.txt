@@ -14,7 +14,8 @@ set(ENKIDU_CORE_SOURCE
 set(ENKIDU_CORE_INCLUDES
     "${ENKIDU_CORE_SOURCE_DIR}/include/model/Action.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/model/Actions.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Connections.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Connection.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Error.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/model/Id.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/model/Model.hpp"
     "${ENKIDU_CORE_SOURCE_DIR}/include/model/Node.hpp"
