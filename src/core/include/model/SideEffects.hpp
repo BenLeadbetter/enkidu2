@@ -4,8 +4,6 @@
 #include <model/Error.hpp>
 #include <model/Node.hpp>
 
-#include <string>
-
 namespace enkidu::model {
 
 struct NodeAddedSideEffect
@@ -35,7 +33,7 @@ struct DisconnectionSideEffect
 
 struct ErrorSideEffect
 {
-    Error message;
+    Error error;
 };
 
 }
