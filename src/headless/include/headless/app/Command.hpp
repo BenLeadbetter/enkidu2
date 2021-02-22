@@ -3,6 +3,7 @@
 #include <headless/model/Action.hpp>
 
 #include <variant>
+#include <vector>
 
 namespace enkidu::headless {
 
@@ -30,5 +31,6 @@ using Command = std::variant<
     QuitCommand,
     VersionCommand
 >;
+using Commands = std::vector<Command>;
 
 }

@@ -2,39 +2,27 @@
 
 #include <linenoise.h>
 
-#include <algorithm>
-#include <cctype>
-#include <string>
-#include <vector>
+#include <boost/range/adaptor/transformed.hpp>
 
 namespace enkidu::headless {
 
-namespace  {
-
-std::vector<std::string> split(const std::string& s)
-{
-    return {};
-}
-
-std::vector<std::string> getLine(const std::string& prompt)
-{
-    std::string line = linenoise(prompt.c_str());
-    linenoiseHistoryAdd(line.c_str());
-    //return split(line);
-    return {};
-}
-
-} // namespace
-
 Input::Input()
 {
-    linenoiseHistorySetMaxLen(20);
+    initLineNoise();
 }
 
-Command Input::get()
+Commands Input::get()
 {
-    getLine(m_prompt);
-    return Command{};
+    char* lineraw = linenoise(m_prompt.c_str());
+    auto commands = m_parser.parse(lineraw);
+    linenoiseHistoryAdd(lineraw);
+    linenoiseFree(lineraw);
+    return commands;
+}
+
+void Input::initLineNoise()
+{
+    linenoiseHistorySetMaxLen(20);
 }
 
 }

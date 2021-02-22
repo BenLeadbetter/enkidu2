@@ -1,6 +1,7 @@
 #pragma once
 
 #include <headless/app/Command.hpp>
+#include <headless/app/Parser.hpp>
 
 #include <string>
 
@@ -10,10 +11,12 @@ class Input
 {
 public:
     Input();
-    Command get();
+    Commands get();
 
 private:
+    void initLineNoise();
     std::string m_prompt{"enkidu>> "};
+    Parser m_parser;
 };
 
 }

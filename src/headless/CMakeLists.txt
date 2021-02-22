@@ -1,36 +1,38 @@
 cmake_minimum_required(VERSION 3.16.0)
 
 set(ENKIDU_HEADLESS_SOURCE
-	"src/main.cpp"
-
-        "src/app/Application.cpp"
-        "src/app/Input.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/Application.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/Input.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/Parser.cpp"
 )
 
 set(ENKIDU_HEADLESS_INCLUDES
-    "include/headless/app/Application.hpp"
-    "include/headless/app/Command.hpp"
-    "include/headless/app/DispatchCommand.hpp"
-    "include/headless/app/Input.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Application.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Command.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/DispatchCommand.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Input.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Parser.hpp"
 
-    "include/headless/model/Action.hpp"
-    "include/headless/model/SideEffect.hpp"
-    "include/headless/model/Store.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/model/Action.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/model/SideEffect.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/model/Store.hpp"
 )
 
-add_executable(enkidu-headless
+add_library(enkidu-headless-lib
+        "src/main.cpp"
 	${ENKIDU_HEADLESS_SOURCE}
 	${ENKIDU_HEADLESS_INCLUDES}
 )
 
-target_link_libraries(enkidu-headless
-	PRIVATE enkidu-core
-        PRIVATE linenoise
+target_link_libraries(enkidu-headless-lib
+        PUBLIC enkidu-core
+        PUBLIC linenoise
+        PUBLIC CLI11
 )
 
-target_include_directories(enkidu-headless PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(enkidu-headless-lib PUBLIC "include")
 
-set_target_properties(enkidu-headless PROPERTIES
+set_target_properties(enkidu-headless-lib PROPERTIES
 	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED YES
 	CXX_EXTENSIONS NO
