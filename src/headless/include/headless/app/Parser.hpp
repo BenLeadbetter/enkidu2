@@ -4,6 +4,7 @@
 
 #include <CLI11.hpp>
 
+#include <iostream>
 #include <string>
 
 namespace enkidu::headless {
@@ -11,7 +12,7 @@ namespace enkidu::headless {
 class Parser
 {
 public:
-    Parser();
+    Parser(std::ostream& err = std::cerr);
     Commands parse(std::string);
 
 private:
@@ -20,9 +21,11 @@ private:
     void configureRemove();
     void configureShow();
     void configureGeneral();
-    Commands commands();
+    void reset();
 
+    Commands m_commands;
     CLI::App m_parser;
+    std::ostream& m_err;
 };
 
 }

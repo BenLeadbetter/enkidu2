@@ -2,22 +2,18 @@
 
 #include <headless/model/Action.hpp>
 
+#include <enkidu/utility/flatten_variants.hpp>
+
 #include <variant>
 #include <vector>
 
 namespace enkidu::headless {
 
-struct ActionCommand
-{
-    Action action;
-};
-
 struct ShowCommand
 {
     enum Option{
         Nodes,
-        Connections,
-        Ports
+        Connections
     };
     Option option;
 };
@@ -25,12 +21,14 @@ struct ShowCommand
 struct QuitCommand{};
 struct VersionCommand{};
 
-using Command = std::variant<
-    ActionCommand,
-    ShowCommand,
-    QuitCommand,
-    VersionCommand
->;
+using Command = utility::flatten_variants<
+    Action,
+    std::variant<
+        ShowCommand,
+        QuitCommand,
+        VersionCommand
+    >
+>::type;
 using Commands = std::vector<Command>;
 
 }
