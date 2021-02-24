@@ -19,14 +19,12 @@ struct ShowCommand
 };
 
 struct QuitCommand{};
-struct VersionCommand{};
 
 using Command = utility::flatten_variants<
     Action,
     std::variant<
         ShowCommand,
-        QuitCommand,
-        VersionCommand
+        QuitCommand
     >
 >::type;
 using Commands = std::vector<Command>;

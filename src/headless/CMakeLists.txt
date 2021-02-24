@@ -38,6 +38,14 @@ set_target_properties(enkidu-headless-lib PROPERTIES
 	CXX_EXTENSIONS NO
 )
 
+add_executable(enkidu-headless "src/main.cpp")
+target_link_libraries(enkidu-headless PRIVATE enkidu-headless-lib)
+set_target_properties(enkidu-headless PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)
+
 if(ENKIDU_ENABLE_TESTS)
 	add_subdirectory(tests)
 endif()

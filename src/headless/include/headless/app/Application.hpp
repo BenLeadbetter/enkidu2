@@ -5,6 +5,8 @@
 
 #include <headless/model/Store.hpp>
 
+#include <optional>
+
 namespace enkidu::headless {
 
 class Application
@@ -14,6 +16,7 @@ public:
     int run();
 
 private:
+    std::optional<int> m_return;
     Input m_input;
     Store m_store;
     DispatchCommand m_dispatchCommand;
