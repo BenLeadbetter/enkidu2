@@ -16,7 +16,7 @@ namespace enkidu::model {
 Reduction reduce(CoreModel model, AddNodeAction)
 {
     using namespace reducer_helpers;
-    auto newNode = makeNode(Ports(3), Ports(3));
+    auto newNode = makeNode();
     return {
         update(model, model.document.nodes.set(newNode.id, std::move(newNode))),
         {NodeAddedSideEffect{newNode.id}}

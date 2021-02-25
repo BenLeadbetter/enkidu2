@@ -7,7 +7,7 @@
 
 namespace enkidu::model::reducer_helpers {
 
-Node makeNode(Ports, Ports);
+Node makeNode();
 
 Document update(Document, Nodes);
 Document update(Document, Connections);

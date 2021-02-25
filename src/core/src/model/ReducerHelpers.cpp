@@ -2,8 +2,12 @@
 
 namespace enkidu::model::reducer_helpers {
 
-Node makeNode(Ports inputs, Ports outputs)
+Node makeNode()
 {
+    Ports inputs{};
+    for (int i = 0; i != 3; ++i) inputs = inputs.push_back(Port{});
+    Ports outputs{};
+    for (int i = 0; i != 3; ++i) outputs = outputs.push_back(Port{});
     return Node{{}, inputs, outputs};
 }
 
