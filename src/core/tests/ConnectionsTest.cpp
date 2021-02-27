@@ -1,14 +1,14 @@
 #include <catch2/catch.hpp>
 
-#include <model/Action.hpp>
-#include <model/Model.hpp>
-#include <model/Node.hpp>
-#include <model/Reducers.hpp>
-#include <model/SideEffect.hpp>
+#include <enkidu/model/Action.hpp>
+#include <enkidu/model/Model.hpp>
+#include <enkidu/model/Node.hpp>
+#include <enkidu/model/Reducers.hpp>
+#include <enkidu/model/SideEffect.hpp>
 
-#include <udf/Action.hpp>
-#include <udf/Reducer.hpp>
-#include <udf/Store.hpp>
+#include <enkidu/udf/Action.hpp>
+#include <enkidu/udf/Reducer.hpp>
+#include <enkidu/udf/Store.hpp>
 
 #include <boost/range/algorithm/find.hpp>
 
@@ -68,8 +68,8 @@ TEST_CASE("connection management", "[connection][reducers]")
         WHEN("node 1 is conected to node 2")
         {
             store.dispatch(model::ConnectAction{
-                {store.model().document.nodes.find(nodeids[0])->inputs[0].id, nodeids[0]},
-                {store.model().document.nodes.find(nodeids[1])->outputs[0].id, nodeids[1]}});
+                store.model().document.nodes.find(nodeids[0])->inputs[0].id,
+                store.model().document.nodes.find(nodeids[1])->outputs[0].id});
 
             THEN("there are no errors")
             {
@@ -85,8 +85,8 @@ TEST_CASE("connection management", "[connection][reducers]")
             {
                 auto id = connectionids[0];
                 store.dispatch(model::ConnectAction{
-                    {store.model().document.nodes.find(nodeids[3])->inputs[0].id, nodeids[3]},
-                    {store.model().document.nodes.find(nodeids[1])->outputs[0].id, nodeids[1]}});
+                    store.model().document.nodes.find(nodeids[3])->inputs[0].id,
+                    store.model().document.nodes.find(nodeids[1])->outputs[0].id});
 
                 THEN("there are no errors")
                 {

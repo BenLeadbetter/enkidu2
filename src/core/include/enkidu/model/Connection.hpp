@@ -1,7 +1,7 @@
 #pragma once
 
-#include <model/Node.hpp>
-#include <model/Id.hpp>
+#include <enkidu/model/Node.hpp>
+#include <enkidu/model/Id.hpp>
 
 #include <immer/map.hpp>
 #include <immer/vector.hpp>

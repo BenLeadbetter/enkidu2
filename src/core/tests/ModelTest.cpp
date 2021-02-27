@@ -1,13 +1,13 @@
 #include <catch2/catch.hpp>
 
-#include <model/Action.hpp>
-#include <model/Model.hpp>
-#include <model/Node.hpp>
-#include <model/Reducers.hpp>
-#include <model/SideEffect.hpp>
+#include <enkidu/model/Action.hpp>
+#include <enkidu/model/Model.hpp>
+#include <enkidu/model/Node.hpp>
+#include <enkidu/model/Reducers.hpp>
+#include <enkidu/model/SideEffect.hpp>
 
-#include <udf/Store.hpp>
-#include <udf/Reduction.hpp>
+#include <enkidu/udf/Store.hpp>
+#include <enkidu/udf/Reduction.hpp>
 
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/find.hpp>
@@ -171,7 +171,7 @@ TEST_CASE("general core model test", "[actions][model][connection][reducers]")
             auto secondNodeId = nodeids[1];
             auto inputid = store.model().document.nodes.find(firstNodeId)->inputs[0].id;
             auto outputid = store.model().document.nodes.find(secondNodeId)->outputs[0].id;
-            store.dispatch(model::ConnectAction{{inputid, firstNodeId}, {outputid, secondNodeId}});
+            store.dispatch(model::ConnectAction{inputid, outputid});
 
             THEN("there are no errors")
             {

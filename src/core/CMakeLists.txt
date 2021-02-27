@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16.0)
 
 set(ENKIDU_CORE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(ENKIDU_CORE_INCLUDE_DIR "${ENKIDU_CORE_INCLUDE_DIR}/include")
 
 find_package(Immer REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -12,29 +13,29 @@ set(ENKIDU_CORE_SOURCE
 )
 
 set(ENKIDU_CORE_INCLUDES
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Action.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Actions.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Connection.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Error.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Id.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Model.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Node.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/Reducers.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/ReducerHelpers.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/SideEffect.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/model/SideEffects.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/Action.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/Actions.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/Connection.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/Id.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/Model.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/Node.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/Reducers.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/ReducerHelpers.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/SideEffect.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/model/SideEffects.hpp"
 
-    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Action.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Reducer.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Reduction.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Selector.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/SideEffect.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/udf/Store.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/Action.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/Reducer.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/Reduction.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/Selector.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/SideEffect.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/udf/Store.hpp"
 
-    "${ENKIDU_CORE_SOURCE_DIR}/include/utility/is_one_of.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/utility/flatten_variants.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/utility/overload.hpp"
-    "${ENKIDU_CORE_SOURCE_DIR}/include/utility/registry.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/Assert.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/is_one_of.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/flatten_variants.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/overload.hpp"
+    "${ENKIDU_CORE_SOURCE_DIR}/include/enkidu/utility/registry.hpp"
 )
 
 add_library(enkidu-core

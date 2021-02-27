@@ -1,7 +1,7 @@
 #pragma once
 
-#include <udf/Reducer.hpp>
-#include <udf/Selector.hpp>
+#include <enkidu/udf/Reducer.hpp>
+#include <enkidu/udf/Selector.hpp>
 
 namespace enkidu::udf {
 

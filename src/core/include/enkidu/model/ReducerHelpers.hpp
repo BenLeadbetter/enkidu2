@@ -3,11 +3,11 @@
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 
-#include <model/Model.hpp>
+#include <enkidu/model/Model.hpp>
 
 namespace enkidu::model::reducer_helpers {
 
-Node makeNode(Ports, Ports);
+Node makeNode();
 
 Document update(Document, Nodes);
 Document update(Document, Connections);

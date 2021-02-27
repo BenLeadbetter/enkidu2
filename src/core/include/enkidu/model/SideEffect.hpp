@@ -1,8 +1,8 @@
 #pragma once
 
-#include<model/SideEffects.hpp>
+#include<enkidu/model/SideEffects.hpp>
 
-#include <udf/SideEffect.hpp>
+#include <enkidu/udf/SideEffect.hpp>
 
 namespace enkidu::model {
 

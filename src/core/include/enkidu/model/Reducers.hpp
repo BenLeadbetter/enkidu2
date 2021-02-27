@@ -1,10 +1,10 @@
 #pragma once
 
-#include <model/Actions.hpp>
-#include <model/Model.hpp>
-#include <model/SideEffect.hpp>
+#include <enkidu/model/Actions.hpp>
+#include <enkidu/model/Model.hpp>
+#include <enkidu/model/SideEffect.hpp>
 
-#include <udf/Reduction.hpp>
+#include <enkidu/udf/Reduction.hpp>
 
 namespace enkidu::model {
 

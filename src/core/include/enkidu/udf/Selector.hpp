@@ -1,9 +1,9 @@
 #pragma once
 
-#include <udf/SideEffect.hpp>
+#include <enkidu/udf/SideEffect.hpp>
 
-#include <utility/is_one_of.hpp>
-#include <utility/registry.hpp>
+#include <enkidu/utility/is_one_of.hpp>
+#include <enkidu/utility/registry.hpp>
 
 #include <functional>
 #include <unordered_map>

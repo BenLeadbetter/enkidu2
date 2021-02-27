@@ -1,9 +1,9 @@
 #pragma once
 
-#include <app/Version.hpp>
+#include <enkidu/app/Version.hpp>
 
-#include <model/Connection.hpp>
-#include <model/Node.hpp>
+#include <enkidu/model/Connection.hpp>
+#include <enkidu/model/Node.hpp>
 
 #include <immer/box.hpp>
 

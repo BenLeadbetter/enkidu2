@@ -1,9 +1,10 @@
-#include <model/Reducers.hpp>
-#include <model/ReducerHelpers.hpp>
+#include <enkidu/model/Reducers.hpp>
+#include <enkidu/model/ReducerHelpers.hpp>
+
+#include <enkidu/utility/Assert.hpp>
 
 #include <boost/range/algorithm/find.hpp>
 
-#include <cassert>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -15,7 +16,7 @@ namespace enkidu::model {
 Reduction reduce(CoreModel model, AddNodeAction)
 {
     using namespace reducer_helpers;
-    auto newNode = makeNode(Ports(3), Ports(3));
+    auto newNode = makeNode();
     return {
         update(model, model.document.nodes.set(newNode.id, std::move(newNode))),
         {NodeAddedSideEffect{newNode.id}}
@@ -46,6 +47,27 @@ std::vector<Connection::Id> getConnectionsWithPort(
             connection.second.output.portid == id;
     };
     return reducer_helpers::getIdsIf(connections, match);
+}
+
+Node::Id findNodeWithPort(Nodes nodes, Port::Id id)
+{
+    const auto matchport = [id](const auto& port) { return port.id == id; };
+    const auto match = [matchport](const auto& pair)
+    {
+        const auto& node = pair.second;
+        if (boost::find_if(node.inputs, matchport) != node.inputs.end())
+        {
+            return true;
+        }
+        if (boost::find_if(node.outputs, matchport) != node.outputs.end())
+        {
+            return true;
+        }
+    };
+    auto nodeids = reducer_helpers::getIdsIf(nodes, match);
+    ENKIDU_ASSERT(nodeids.size() < 2);
+    if (nodeids.empty()) return 0;
+    return nodeids.front();
 }
 
 template<typename A>
@@ -89,39 +111,20 @@ Reduction reduce(CoreModel model, ConnectAction action)
 {
     auto ret = Reduction{model, {}};
 
-    {
-        using namespace reducer_helpers;
-        using namespace std::placeholders;
-        const auto found = [](const auto pair, auto id)
-        {
-            return pair.first == id;
-        };
-        auto inputnodes = getIdsIf(
-            ret.model.document.nodes,
-            std::bind(found, _1, action.input.nodeid));
-        assert(inputnodes.size() < 2);
-        if (inputnodes.empty())
-        {
-            ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
-            return ret;
-        }
+    auto inputnodeid = findNodeWithPort(ret.model.document.nodes, action.input);
+    auto outputnodeid = findNodeWithPort(ret.model.document.nodes, action.output);
 
-        auto outputnodes = getIdsIf(
-            ret.model.document.nodes,
-            std::bind(found, _1, action.output.nodeid));
-        assert(outputnodes.size() < 2);
-        if (inputnodes.empty())
-        {
-            ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
-            return ret;
-        }
+    if (!inputnodeid || !outputnodeid)
+    {
+        ret.sideEffects.push_back(ErrorSideEffect{Error::PortNotFound});
+        return ret;
     }
 
     {
         auto prevInputConnections = getConnectionsWithPort(
-            ret.model.document.connections, action.input.portid);
+            ret.model.document.connections, action.input);
         auto prevOutputConnections = getConnectionsWithPort(
-            ret.model.document.connections, action.output.portid);
+            ret.model.document.connections, action.output);
         for (auto id : prevInputConnections)
         {
             ret = reduce(ret, DisconnectAction{id});
@@ -132,7 +135,11 @@ Reduction reduce(CoreModel model, ConnectAction action)
         }
     }
 
-    auto newConnection = Connection{{}, action.input, action.output};
+    auto newConnection = Connection{
+        {},
+        {action.input, inputnodeid},
+        {action.output, outputnodeid}
+    };
     ret.sideEffects.push_back(ConnectionSideEffect{newConnection.id});
     using namespace reducer_helpers;
     return {

@@ -1,8 +1,8 @@
 #include <catch2/catch.hpp>
 
-#include <utility/flatten_variants.hpp>
-#include <utility/is_one_of.hpp>
-#include <utility/registry.hpp>
+#include <enkidu/utility/flatten_variants.hpp>
+#include <enkidu/utility/is_one_of.hpp>
+#include <enkidu/utility/registry.hpp>
 
 #include <type_traits>
 #include <variant>

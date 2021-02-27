@@ -1,8 +1,8 @@
 #pragma once
 
-#include <model/Actions.hpp>
+#include <enkidu/model/Actions.hpp>
 
-#include <udf/Action.hpp>
+#include <enkidu/udf/Action.hpp>
 
 namespace enkidu::model {
 

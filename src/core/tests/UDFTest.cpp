@@ -1,11 +1,11 @@
 #include <CatchConfigMain.hpp>
 #include <catch2/catch.hpp>
 
-#include <udf/Action.hpp>
-#include <udf/Reducer.hpp>
-#include <udf/Selector.hpp>
-#include <udf/SideEffect.hpp>
-#include <udf/Store.hpp>
+#include <enkidu/udf/Action.hpp>
+#include <enkidu/udf/Reducer.hpp>
+#include <enkidu/udf/Selector.hpp>
+#include <enkidu/udf/SideEffect.hpp>
+#include <enkidu/udf/Store.hpp>
 
 #include <cmath>
 
