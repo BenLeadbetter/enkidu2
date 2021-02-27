@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16.0)
 set(ENKIDU_HEADLESS_SOURCE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app/Application.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app/Input.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/OnError.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app/Parser.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app/Show.cpp"
 )
@@ -12,6 +13,7 @@ set(ENKIDU_HEADLESS_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Command.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/DispatchCommand.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Input.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/OnError.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Parser.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/headless/app/Show.hpp"
 

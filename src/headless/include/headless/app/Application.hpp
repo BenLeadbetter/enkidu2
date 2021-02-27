@@ -16,6 +16,8 @@ public:
     int run();
 
 private:
+    void initSubscribers();
+
     std::optional<int> m_return;
     Input m_input;
     Store m_store;

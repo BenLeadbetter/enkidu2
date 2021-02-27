@@ -1,10 +1,13 @@
 #include <headless/app/Application.hpp>
+#include <headless/app/OnError.hpp>
 
 namespace enkidu::headless {
 
 Application::Application(int, char**) :
     m_dispatchCommand(m_store, m_return)
-{}
+{
+    initSubscribers();
+}
 
 int Application::run()
 {
@@ -27,6 +30,11 @@ int Application::run()
         }
     }
     return *m_return;
+}
+
+void Application::initSubscribers()
+{
+    m_store.addSubscription([](const model::ErrorSideEffect& sf){onError(sf.error);});
 }
 
 }
